@@ -6,7 +6,7 @@ on:
       - "releases/**"
 
 jobs:
-  migrate-dashboard-db:
+  migrate-dbs:
     name: Deploy Database Schema
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -30,8 +30,9 @@ jobs:
       - uses: ./.github/actions/production-wrangler
         with:
           dashboard_database_id: ${{ secrets.DASHBOARD_D1_DATABASE_ID }}
+          sensor_database_id: ${{ secrets.SENSOR_D1_DATABASE_ID }}
 
-      - name: Push dashboard database schema
+      - name: Push database schema
         run: pnpm d1:migrate
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -41,7 +42,7 @@ jobs:
     name: Deploy API
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: migrate-dashboard-db
+    needs: migrate-dbs
 
     steps:
       - name: Checkout code
@@ -62,6 +63,7 @@ jobs:
       - uses: ./.github/actions/production-wrangler
         with:
           dashboard_database_id: ${{ secrets.DASHBOARD_D1_DATABASE_ID }}
+          sensor_database_id: ${{ secrets.SENSOR_D1_DATABASE_ID }}
 
       - name: Build & Deploy Worker
         working-directory: "apps/api"
@@ -74,7 +76,7 @@ jobs:
     name: Deploy Reviewer Scheduler
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: migrate-dashboard-db
+    needs: migrate-dbs
 
     steps:
       - name: Checkout code
@@ -95,10 +97,52 @@ jobs:
       - uses: ./.github/actions/production-wrangler
         with:
           dashboard_database_id: ${{ secrets.DASHBOARD_D1_DATABASE_ID }}
+          sensor_database_id: ${{ secrets.SENSOR_D1_DATABASE_ID }}
 
       - name: Build & Deploy Worker
         working-directory: "apps/reviewer"
         run: pnpm cf:deploy:daily
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-sensor-ingest:
+    name: Deploy Sensor Ingest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: migrate-dbs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: ./.github/actions/production-wrangler
+        with:
+          dashboard_database_id: ${{ secrets.DASHBOARD_D1_DATABASE_ID }}
+          sensor_database_id: ${{ secrets.SENSOR_D1_DATABASE_ID }}
+
+      - name: Build & Deploy Worker
+        working-directory: "apps/sensor-ingest"
+        run: pnpm cf:deploy:producer
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Build & Deploy Worker
+        working-directory: "apps/sensor-ingest"
+        run: pnpm cf:deploy:consumer
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -127,6 +171,7 @@ jobs:
       - uses: ./.github/actions/production-wrangler
         with:
           dashboard_database_id: ${{ secrets.DASHBOARD_D1_DATABASE_ID }}
+          sensor_database_id: ${{ secrets.SENSOR_D1_DATABASE_ID }}
 
       - name: Build & Deploy Worker
         working-directory: "apps/dashboard"

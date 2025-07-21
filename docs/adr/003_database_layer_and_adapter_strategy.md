@@ -1,4 +1,4 @@
-# ADR‑002 – Database Layer & Adapter Strategy
+# ADR‑003 – Database Layer & Adapter Strategy
 
 **Date:** 2025‑07‑09 | **Status:** Accepted
 
@@ -13,10 +13,10 @@
 
 ## Decision
 
-1. **Repository 契約** を 3 つ定義: `RealtimeDB`, `DashboardDB`, `AnalyticsDB`。
+1. **Repository 契約** を 3 つ定義: `SensorDB`, `DashboardDB`, `AnalyticsDB`。
 2. **初期アダプター**
 
-   * Cloudflare **D1** → Realtime & Dashboard
+   * Cloudflare **D1** → Sensor & Dashboard
    * Cloudflare **R2 (Parquet/Iceberg)** → Analytics
 3. **将来拡張**: ClickHouse (Analytics), Postgres/Timescale (Dashboard/Analytics) などを adapter 追加で対応。
 
