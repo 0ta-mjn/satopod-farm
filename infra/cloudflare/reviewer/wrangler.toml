@@ -2,6 +2,9 @@ name = "satopod-reviewer"
 compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2025-06-17"
 
+[observability.logs]
+enabled = true
+
 [[d1_databases]]
 binding = "DashboardDB"
 database_name = "dashboard"
