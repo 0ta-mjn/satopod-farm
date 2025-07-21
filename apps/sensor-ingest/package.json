@@ -11,6 +11,8 @@
     "lint": "eslint",
     "test": "dotenv -e .env.testing -- vitest",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "cf:deploy:producer": "wrangler deploy src/producer/index.ts --config ../../infra/cloudflare/sensor-ingest/producer/wrangler.toml --keep-vars",
+    "cf:deploy:consumer": "wrangler deploy src/consumer/index.ts --config ../../infra/cloudflare/sensor-ingest/consumer/wrangler.toml --keep-vars",
     "cf:generate:types": "wrangler types --config ../../infra/cloudflare/sensor-ingest/producer/wrangler.toml --config ../../infra/cloudflare/sensor-ingest/consumer/wrangler.toml"
   },
   "dependencies": {

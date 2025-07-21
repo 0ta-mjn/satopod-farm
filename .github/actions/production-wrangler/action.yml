@@ -3,6 +3,9 @@ inputs:
   dashboard_database_id:
     required: true
     type: string
+  sensor_database_id:
+    required: true
+    type: string
 runs:
   using: "composite"
   steps:
@@ -11,5 +14,7 @@ runs:
       run: |
         sed -i "s|<YOUR_DASHBOARD_D1_DATABASE_ID>|${DASHBOARD_D1_DATABASE_ID}|g" infra/cloudflare/api/wrangler.toml
         sed -i "s|<YOUR_DASHBOARD_D1_DATABASE_ID>|${DASHBOARD_D1_DATABASE_ID}|g" infra/cloudflare/reviewer/wrangler.toml
+        sed -i "s|<YOUR_SENSOR_D1_DATABASE_ID>|${SENSOR_D1_DATABASE_ID}|g" infra/cloudflare/sensor-ingest/consumer/wrangler.toml
       env:
         DASHBOARD_D1_DATABASE_ID: ${{ inputs.dashboard_database_id }}
+        SENSOR_D1_DATABASE_ID: ${{ inputs.sensor_database_id }}
