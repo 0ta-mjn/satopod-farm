@@ -7,15 +7,7 @@ export interface AuthUser {
   isEmailVerified: boolean;
 }
 
-export const SupportedOAuthProviderSchema = z.enum(["discord"]);
-export type SupportedOAuthProvider = z.infer<
-  typeof SupportedOAuthProviderSchema
->;
-
-export const AuthProviderNameSchema = z.enum([
-  "email",
-  ...SupportedOAuthProviderSchema.options,
-]);
+export const AuthProviderNameSchema = z.enum(["email"]);
 export type AuthProviderName = z.infer<typeof AuthProviderNameSchema>;
 
 export interface AuthUserIdentity {
@@ -46,15 +38,6 @@ export interface AuthProvider {
   sendResetPassword(input: ResetPasswordForEmailInput): Promise<void>;
   resetPassword(input: ResetPasswordInput): Promise<void>;
   updatePassword(input: UpdatePasswordInput): Promise<void>;
-  redirectOAuthSigninUrl(
-    provider: SupportedOAuthProvider,
-    input: OAuthSigninUrlInput
-  ): Promise<void>;
-  linkOAuthProvider(
-    provider: SupportedOAuthProvider,
-    input: OAuthSigninUrlInput
-  ): Promise<void>;
-  unlinkOAuthProvider(provider: SupportedOAuthProvider): Promise<void>;
   onAuthStateChange(
     callback: (session: AuthSession | null, event?: string) => void
   ): () => void;
@@ -76,10 +59,6 @@ export const SignInInputSchema = z.discriminatedUnion("provider", [
     provider: z.literal("email"),
     input: SignInEmailInputSchema,
   }),
-  z.object({
-    provider: z.literal("oauth"),
-    input: SignInOAuthInputSchema,
-  }),
 ]);
 export type SignInInput = z.infer<typeof SignInInputSchema>;
 
@@ -94,10 +73,6 @@ export const SignUpInputSchema = z.discriminatedUnion("provider", [
   z.object({
     provider: z.literal("email"),
     input: SignUpEmailInputSchema,
-  }),
-  z.object({
-    provider: z.literal("oauth"),
-    input: SignInOAuthInputSchema, // Reusing OAuth input for sign-up
   }),
 ]);
 export type SignUpInput = z.infer<typeof SignUpInputSchema>;
@@ -125,12 +100,6 @@ export const UpdatePasswordInputSchema = z.object({
   password: z.string().min(8, "パスワードは8文字以上で入力してください"),
 });
 export type UpdatePasswordInput = z.infer<typeof UpdatePasswordInputSchema>;
-
-export const OAuthSigninUrlInputSchema = z.object({
-  redirectUrl: z.string().optional(),
-  scope: z.string().optional(),
-});
-export type OAuthSigninUrlInput = z.infer<typeof OAuthSigninUrlInputSchema>;
 
 export const VerifyCodeInputSchema = z.discriminatedUnion("type", [
   z.object({

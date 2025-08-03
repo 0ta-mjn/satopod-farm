@@ -1,7 +1,4 @@
-import {
-  createClient,
-  SupabaseClient,
-} from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import {
   AuthProvider,
   AuthSession,
@@ -11,9 +8,7 @@ import {
   ResetPasswordForEmailInput,
   UpdatePasswordInput,
   ResetPasswordInput,
-  OAuthSigninUrlInput,
   VerifyCodeInput,
-  SupportedOAuthProvider,
   AuthUser,
 } from "../../interface";
 import {
@@ -33,11 +28,6 @@ import {
   updatePassword,
 } from "./email";
 import { AuthError } from "../../errors";
-import {
-  redirectOAuthSigninUrl,
-  linkOAuthProvider,
-  unlinkOAuthProvider,
-} from "./oauth";
 
 export type SupabaseAuthProviderConfig = {
   provider: "supabase";
@@ -65,8 +55,6 @@ export class SupabaseAuthProvider implements AuthProvider {
     switch (input.provider) {
       case "email":
         return signInWithEmail(this.supabase, input.input);
-      case "oauth":
-        return getSessionFromCode(this.supabase, input.input.code);
       default:
         throw new Error(
           `Unsupported provider: ${(input as Record<string, unknown>).provider}`
@@ -78,10 +66,6 @@ export class SupabaseAuthProvider implements AuthProvider {
     switch (input.provider) {
       case "email":
         return signUpWithEmail(this.supabase, input.input);
-      case "oauth":
-        return getSessionFromCode(this.supabase, input.input.code).then(
-          (session) => session?.user || null
-        );
       default:
         throw new Error(
           `Unsupported provider: ${(input as Record<string, unknown>).provider}`
@@ -129,24 +113,6 @@ export class SupabaseAuthProvider implements AuthProvider {
 
   resetPassword({ password }: ResetPasswordInput) {
     return updatePassword(this.supabase, { password });
-  }
-
-  redirectOAuthSigninUrl(
-    provider: SupportedOAuthProvider,
-    input: OAuthSigninUrlInput
-  ) {
-    return redirectOAuthSigninUrl(this.supabase, provider, input);
-  }
-
-  linkOAuthProvider(
-    provider: SupportedOAuthProvider,
-    input: OAuthSigninUrlInput
-  ) {
-    return linkOAuthProvider(this.supabase, provider, input);
-  }
-
-  unlinkOAuthProvider(provider: SupportedOAuthProvider) {
-    return unlinkOAuthProvider(this.supabase, provider);
   }
 
   updatePassword(input: UpdatePasswordInput) {
