@@ -12,11 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shadcn/tabs";
 import { SettingsIcon, UserRoundPenIcon } from "lucide-react";
 import { EmailSettingRow } from "@/components/account/email-setting-row";
 import { PasswordSettingRow } from "@/components/account/password-setting-row";
-import { DiscordSettingRow } from "@/components/account/discord-setting-row";
 import { AccountDeleteRow } from "@/components/account/account-delete-row";
 import { ProfileSettingRow } from "@/components/account/profile-setting-row";
-import { useQuery } from "@tanstack/react-query";
-import { auth } from "@/lib/auth-provider";
 
 interface AccountSettingsDialogProps {
   children: React.ReactNode;
@@ -91,11 +88,6 @@ export function AccountSettingsDialog({
     updateHashParams(newTab);
   };
 
-  const { data, refetch } = useQuery({
-    queryKey: ["supabaseUserIdentities"],
-    queryFn: () => auth.getIdentities(),
-  });
-
   return (
     <Dialog
       open={open}
@@ -146,22 +138,8 @@ export function AccountSettingsDialog({
               <h3 className="font-bold">ログイン設定</h3>
 
               <div className="rounded-lg border p-4 space-y-4">
-                {data?.some(
-                  (identity) => identity.provider === "email"
-                ) && (
-                  <>
-                    <EmailSettingRow />
-                    <PasswordSettingRow onSuccess={refetch} />
-                  </>
-                )}
-
-                <DiscordSettingRow
-                  identity={data?.find(
-                    (identity) => identity.provider === "discord"
-                  )}
-                  onSuccess={refetch}
-                  disabled={data?.length === 1}
-                />
+                <EmailSettingRow />
+                <PasswordSettingRow />
               </div>
 
               <div className="rounded-lg border border-red-200 bg-red-50 space-y-3 p-4">

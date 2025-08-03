@@ -31,7 +31,6 @@ import {
   CheckCircleIcon,
 } from "lucide-react";
 import Link from "next/link";
-import DiscordSvg from "@/assets/discord-symbol.svg";
 import { auth } from "@/lib/auth-provider";
 import { AuthError } from "@repo/auth-client";
 
@@ -83,23 +82,6 @@ export default function SignupPage() {
     },
   });
 
-  // Discord認証処理
-  const handleDiscordSignup = async () => {
-    setIsLoading(true);
-    setGeneralError(null);
-
-    try {
-      await auth.redirectOAuthSigninUrl("discord", {
-        redirectUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      });
-    } catch (err) {
-      console.error("Discord signup error:", err);
-      setGeneralError("Discord認証中にエラーが発生しました");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // フォーム送信処理
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
@@ -119,7 +101,7 @@ export default function SignupPage() {
       if (data) {
         setUserEmail(values.email);
         setEmailSent(true);
-      }else {
+      } else {
         console.warn("Signup response did not contain accessToken", data);
       }
     } catch (error) {
@@ -197,31 +179,6 @@ export default function SignupPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Discordサインアップボタン */}
-        <div className="space-y-4 mb-6">
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full flex items-center justify-center gap-3 bg-discord-bg text-white hover:bg-discord-bg/90 hover:text-white"
-            onClick={handleDiscordSignup}
-            disabled={isLoading}
-          >
-            <DiscordSvg className="w-5 h-5" />
-            {isLoading ? "認証中..." : "Discordでサインアップ"}
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                または
-              </span>
-            </div>
-          </div>
-        </div>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* メールアドレス */}

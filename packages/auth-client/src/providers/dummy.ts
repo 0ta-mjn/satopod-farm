@@ -5,12 +5,10 @@ import {
   AuthSession,
   AuthUser,
   AuthUserIdentity,
-  OAuthSigninUrlInput,
   ResetPasswordForEmailInput,
   ResetPasswordInput,
   SignInInput,
   SignUpInput,
-  SupportedOAuthProvider,
   UpdateEmailInput,
   UpdatePasswordInput,
   VerifyCodeInput,
@@ -242,7 +240,7 @@ export class DummyAuthProvider implements AuthProvider {
 
     // アクセストークンを削除
     this.accessTokens.delete(this.currentSession.accessToken);
-    
+
     // リフレッシュトークンも削除
     if (this.currentSession.refreshToken) {
       this.refreshTokens.delete(this.currentSession.refreshToken);
@@ -251,9 +249,7 @@ export class DummyAuthProvider implements AuthProvider {
     this.currentSession = null;
   }
 
-  async updateEmail(
-    input: UpdateEmailInput
-  ) {
+  async updateEmail(input: UpdateEmailInput) {
     await this.simulateDelay();
 
     if (!this.options.shouldSucceed) {
@@ -266,9 +262,7 @@ export class DummyAuthProvider implements AuthProvider {
     };
   }
 
-  async sendResetPassword(
-    input: ResetPasswordForEmailInput
-  ): Promise<void> {
+  async sendResetPassword(input: ResetPasswordForEmailInput): Promise<void> {
     await this.simulateDelay();
 
     if (!this.options.shouldSucceed) {
@@ -278,9 +272,7 @@ export class DummyAuthProvider implements AuthProvider {
     // Dummy implementation - パスワードリセットメール送信のシミュレーション
   }
 
-  async updatePassword(
-    input: UpdatePasswordInput
-  ): Promise<void> {
+  async updatePassword(input: UpdatePasswordInput): Promise<void> {
     await this.simulateDelay();
 
     if (!this.options.shouldSucceed) {
@@ -298,54 +290,12 @@ export class DummyAuthProvider implements AuthProvider {
     }
   }
 
-  async redirectOAuthSigninUrl(
-    provider: SupportedOAuthProvider,
-    input: OAuthSigninUrlInput
-  ): Promise<void> {
-    await this.simulateDelay();
-
-    if (!this.options.shouldSucceed) {
-      throw new AuthError(
-        "unknown_error",
-        "OAuth signin URL generation failed"
-      );
-    }
-
-    // Dummy implementation - 実際の実装ではリダイレクトを行う
-    console.log(`Redirecting to OAuth for ${provider}`, input);
-  }
-
-  async linkOAuthProvider(
-    provider: SupportedOAuthProvider,
-    input: OAuthSigninUrlInput
-  ): Promise<void> {
-    await this.simulateDelay();
-
-    if (!this.options.shouldSucceed) {
-      throw new AuthError("unknown_error", "OAuth provider linking failed");
-    }
-
-    // Dummy implementation - OAuth プロバイダーとのリンク
-    console.log(`Linking OAuth provider ${provider}`, input);
-  }
-
-  async unlinkOAuthProvider(provider: SupportedOAuthProvider): Promise<void> {
-    await this.simulateDelay();
-
-    if (!this.options.shouldSucceed) {
-      throw new AuthError("unknown_error", "OAuth unlink failed");
-    }
-
-    // Dummy implementation - OAuth プロバイダーとのリンク解除
-    console.log(`Unlinking OAuth provider ${provider}`);
-  }
-
   onAuthStateChange(
     callback: (session: AuthSession | null, event?: string) => void
   ): () => void {
     // Dummy implementation - 状態変化の監視
     // 実際の実装では、認証状態の変化を監視して callback を呼び出す
-    
+
     // 初回は現在のセッションを通知
     setTimeout(() => {
       callback(this.currentSession, "INITIAL_SESSION");
